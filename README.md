@@ -1,10 +1,32 @@
-# Quick start
+# HotNews（热点新闻网站）
 
-```python
-python3 manage.py runserver 0.0.0.0:8000
+## 环境设置
+
+1. 创建虚拟环境
+```bash
+python3 -m venv .venv
 ```
 
-**Note**:
-- Centos defult python version is 2.x. I install 3.x version names python3. If your default python version is 3.x, you should replace pthon3 to python.
-- 0.0.0.0 is allow all ip to access it.
-- Django default port is 8000. Of course, you shoud replace it to what you like it. But if you use cloud service, security rule should allow port access first. 
+2. 激活虚拟环境
+```bash
+# 在macOS或Linux上
+source .venv/bin/activate
+# 在Windows上
+.venv\Scripts\activate
+```
+
+3.安装依赖
+```bash
+pip install -r requirements.txt
+```
+
+## 启动服务器
+```bash
+python manage.py runserver 0.0.0.0:8000
+```
+
+**注意:**
+
+- 0.0.0.0表示允许所有IP访问
+
+- 如果使用云服务，请先在安全规则中开放相应端口
