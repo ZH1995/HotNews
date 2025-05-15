@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>微博热搜</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .news-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .news-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #444;
+        }
+        .news-meta {
+            font-size: 0.8em;
+            color: #888;
+            margin: 5px 0;
+        }
+        .rank-tag {
+            display: inline-block;
+            background-color: #ff8200;
+            color: white;
+            border-radius: 3px;
+            padding: 2px 6px;
+            margin-right: 8px;
+        }
+        a {
+            text-decoration: none;
+            color: #444;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>微博热搜榜</h1>
+    
+    {% if latest_news_list %}
+        {% for article in latest_news_list %}
+            <div class="news-item">
+                <div class="news-title">
+                    {% if article.hot_rank >= 0 %}
+                    <span class="rank-tag">{{ article.hot_rank|add:"1" }}</span>
+                    {% endif %}
+                    <a href="{{ article.url }}" target="_blank">{{ article.title }}</a>
+                </div>
+                <div class="news-meta">
+                    发布时间: {{ article.created_at|date:"Y-m-d H:i:s" }}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>目前没有可用的热搜数据。</p>
+    {% endif %}
+</body>
+</html>
