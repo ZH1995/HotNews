@@ -1,37 +1,103 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>微博热搜</title>
+    {% load custom_filters %}
+    <title>热搜榜单</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #f5f5f5; /* 浅灰色背景 */
+            color: #333;
         }
         h1 {
             color: #333;
-            border-bottom: 2px solid #eee;
+            border-bottom: 2px solid #ddd;
             padding-bottom: 10px;
+            text-align: center;
+        }
+        .rankings-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px; /* 使用gap属性在元素之间创建均匀间隔 */
+        }
+        .ranking-section {
+            width: calc(33.33% - 20px); /* 每行三个，减去gap的空间 */
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff; /* 白色背景 */
+            transition: transform 0.2s;
+        }
+        .ranking-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .ranking-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            border-radius: 8px 8px 0 0;
+        }
+        /* 为不同的数据源设置不同的标题背景色 */
+        .source-1 .ranking-header {
+            background-color: #fff8f0;
+        }
+        .source-3 .ranking-header {
+            background-color: #f0f8ff;
+        }
+        .source-4 .ranking-header {
+            background-color: #fff0f5;
+        }
+        .source-5 .ranking-header {
+            background-color: #fffaf0;
+        }
+        .source-6 .ranking-header {
+            background-color: #f0fff0;
+        }
+        .source-7 .ranking-header {
+            background-color: #f8f0ff;
+        }
+        .ranking-logo {
+            width: 32px;
+            height: 32px;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        .ranking-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            flex-grow: 1;
+        }
+        .ranking-content {
+            overflow-y: auto;
+            height: 400px; /* 固定高度，允许滚动 */
+            padding: 0 15px;
+            background-color: #ffffff;
+            border-radius: 0 0 8px 8px;
         }
         .news-item {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
+            margin: 15px 0;
+            padding-bottom: 15px;
             border-bottom: 1px solid #eee;
         }
         .news-title {
-            font-size: 1.2em;
+            font-size: 1em;
             font-weight: bold;
             color: #444;
-        }
-        .news-meta {
-            font-size: 0.8em;
-            color: #888;
-            margin: 5px 0;
+            line-height: 1.4;
         }
         .rank-tag {
             display: inline-block;
-            background-color: #ff8200;
             color: white;
             border-radius: 3px;
             padding: 2px 6px;
@@ -43,28 +109,192 @@
         }
         a:hover {
             text-decoration: underline;
+            color: #000;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+        .refresh-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.8em;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        .refresh-button:hover {
+            background-color: #45a049;
+        }
+        
+        /* 为不同的数据源自定义颜色 */
+        .source-1 .rank-tag {
+            background-color: #ff8200;
+        }
+        .source-3 .rank-tag {
+            background-color: #0084ff;
+        }
+        .source-4 .rank-tag {
+            background-color: #fb7299;
+        }
+        .source-5 .rank-tag {
+            background-color: #ff6600;
+        }
+        .source-6 .rank-tag {
+            background-color: #2ecc71;
+        }
+        .source-7 .rank-tag {
+            background-color: #9b59b6;
+        }
+        
+        /* 页脚样式 */
+        footer {
+            margin-top: 40px;
+            padding: 20px 0;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            color: #777;
+            font-size: 0.9em;
+        }
+        
+        /* 响应式布局 */
+        @media (max-width: 992px) {
+            .ranking-section {
+                width: calc(50% - 10px); /* 中等屏幕每行两个 */
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .ranking-section {
+                width: 100%; /* 小屏幕每行一个 */
+            }
         }
     </style>
 </head>
 <body>
-    <h1>微博热搜榜</h1>
+    <h1>热搜榜单</h1>
     
-    {% if latest_news_list %}
-        {% for article in latest_news_list %}
-            <div class="news-item">
-                <div class="news-title">
-                    {% if article.hot_rank >= 0 %}
-                    <span class="rank-tag">{{ article.hot_rank|add:"1" }}</span>
-                    {% endif %}
-                    <a href="{{ article.url }}" target="_blank">{{ article.title }}</a>
+    <div class="rankings-container">
+        {% for source in sources %}
+            {% if source in source_config %}
+                <div id="ranking-section-{{ source }}" class="ranking-section source-{{ source }}">
+                    <div class="ranking-header">
+                        <img class="ranking-logo" src="{{ source_config|get_item:source|get_item:'logo' }}" alt="{{ source_config|get_item:source|get_item:'title' }} Logo">
+                        <div class="ranking-title">{{ source_config|get_item:source|get_item:'title' }}</div>
+                        <button class="refresh-button" onclick="loadRankingData({{ source }})">刷新</button>
+                    </div>
+                    <div id="ranking-content-{{ source }}" class="ranking-content">
+                        <div class="loading">加载中...</div>
+                    </div>
                 </div>
-                <div class="news-meta">
-                    发布时间: {{ article.created_at|date:"Y-m-d H:i:s" }}
-                </div>
-            </div>
+            {% endif %}
+        {% empty %}
+            <p>目前没有可用的榜单数据。</p>
         {% endfor %}
-    {% else %}
-        <p>目前没有可用的热搜数据。</p>
-    {% endif %}
+    </div>
+
+    <footer>
+        <p>&copy; 2025 热搜榜单聚合 | 实时展示各平台热门资讯</p>
+        <p>数据仅供参考，更新时间：<span id="update-time"></span></p>
+    </footer>
+
+    <script>
+        // 页面加载完成后，异步加载各个榜单数据
+        document.addEventListener('DOMContentLoaded', function() {
+            const sources = [{% for source in sources %}{{ source }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+            
+            // 更新页脚的时间
+            document.getElementById('update-time').textContent = new Date().toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: false
+            });
+            
+            // 为每个榜单加载数据
+            sources.forEach(function(source) {
+                loadRankingData(source);
+            });
+        });
+        
+        // 加载单个榜单数据的函数
+        function loadRankingData(sourceId) {
+            const contentElement = document.getElementById(`ranking-content-${sourceId}`);
+            contentElement.innerHTML = '<div class="loading">加载中...</div>';
+            
+            const apiUrl = `/api/ranking/${sourceId}/`;
+            console.log(`正在请求API: ${apiUrl}`);
+            
+            fetch(apiUrl)
+                .then(response => {
+                    console.log(`API响应状态: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`网络响应错误: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(`获取到数据: ${JSON.stringify(data).substring(0, 100)}...`);
+                    renderRankingData(sourceId, data);
+                    // 更新页脚的时间
+                    document.getElementById('update-time').textContent = new Date().toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        second: 'numeric',
+                        hour12: false
+                    });
+                })
+                .catch(error => {
+                    console.error(`加载榜单${sourceId}失败:`, error);
+                    contentElement.innerHTML = `<div class="error">加载失败: ${error.message}</div>`;
+                });
+        }
+        
+        // 渲染榜单数据
+        function renderRankingData(sourceId, data) {
+            const contentElement = document.getElementById(`ranking-content-${sourceId}`);
+            const headerElement = document.querySelector(`#ranking-section-${sourceId} .ranking-header`);
+            
+            // 更新logo和标题
+            const logoElement = headerElement.querySelector('.ranking-logo');
+            logoElement.src = data.logo;
+            logoElement.alt = `${data.title} Logo`;
+            
+            headerElement.querySelector('.ranking-title').textContent = data.title;
+            
+            // 生成文章列表HTML
+            let html = '';
+            
+            if (data.articles && data.articles.length > 0) {
+                data.articles.forEach(article => {
+                    html += `
+                        <div class="news-item">
+                            <div class="news-title">
+                                ${article.hot_rank >= 0 ? 
+                                    `<span class="rank-tag">${article.hot_rank}</span>` : ''}
+                                <a href="${article.url}" target="_blank">${article.title}</a>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                html = `<p>目前没有可用的${data.title}数据。</p>`;
+            }
+            
+            contentElement.innerHTML = html;
+        }
+    </script>
 </body>
 </html>
