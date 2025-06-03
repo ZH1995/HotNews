@@ -16,4 +16,6 @@ media
 *.swp
 *.swo
 *.code-workspace
-local_settings.py
+
+# local
+env.sh
