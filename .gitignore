@@ -1,14 +1,26 @@
-# 虚拟环境
-.venv/
+# Python
 __pycache__/
+*.py[cod]
 *$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
 
 # Django
 *.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media
+/staticfiles/
+/media/
+
+# 虚拟环境
+.venv/
+venv/
+ENV/
+env/
 
 # IDE
 .idea/
@@ -17,5 +29,24 @@ media
 *.swo
 *.code-workspace
 
-# local
-env.sh
+# 环境变量
+.env
+.env.*
+!.env.example
+
+# Docker
+docker-compose.override.yml
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+dist-ssr/
+*.local
+
+# OS
+.DS_Store
+Thumbs.db

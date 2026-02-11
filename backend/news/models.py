@@ -10,8 +10,14 @@ class NewsArticle(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)  # CURRENT_TIMESTAMP默认值
     
     def __str__(self):
-        return self.title
+        return f"{self.source} - {self.hot_rank} - {self.title}"
     
     class Meta:
         db_table = 'ranking'
-        managed = False  # 告诉Django不要管理这个表的创建/修改/删除
+        verbose_name = '新闻文章'
+        verbose_name_plural = verbose_name
+        indexes = [
+            models.Index(fields=['source', 'batch_timestamp']),
+            models.Index(fields=['source', 'hot_rank']),
+        ]
+        ordering = ['hot_rank']
