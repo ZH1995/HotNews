@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
 
   // 根据启动方式自动匹配
   const apiTarget = env.VITE_API_URL || (
-    process.env.DOCKER_ENV ? 'http://backend:8000' : 'http://localhost:8000'
+    process.env.DOCKER_ENV ? 'http://backend:8000' : 'http://localhost:8090'
   )
   
   return {
