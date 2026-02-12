@@ -15,6 +15,9 @@ SOURCE_CONFIG = {
     5: {'title': '抖音', 'logo': '/images/douyin_logo.png', 'limit': 50},
     6: {'title': '华尔街见闻', 'logo': '/images/wallstreetcn_logo.png', 'limit': 10},
     7: {'title': '澎湃新闻', 'logo': '/images/thepaper_logo.png', 'limit': 10},
+}
+
+SCHOOL_SOURCES_CONFIG = {
     231: {'title': '23级人工1班', 'logo': '/images/wczy_logo.png', 'limit': 100},
     232: {'title': '23级人工2班', 'logo': '/images/wczy_logo.png', 'limit': 100},
     241: {'title': '24级人工1班', 'logo': '/images/wczy_logo.png', 'limit': 100},
@@ -36,6 +39,17 @@ def get_sources(request):
         }
         for source_id, config in SOURCE_CONFIG.items()
     ]
+    show_school_sources = request.GET.get('show_school_sources', '0')
+    if show_school_sources == '1':
+        sources.extend([
+            {
+                'id': source_id,
+                'title': config['title'],
+                'logo': config['logo'],
+                'limit': config['limit']
+            }
+            for source_id, config in SCHOOL_SOURCES_CONFIG.items()
+        ])
     return Response({'sources': sources})
 
 @api_view(['GET'])
@@ -46,7 +60,11 @@ def get_ranking_data(request, source_id):
     except ValueError:
         return Response({'error': 'Invalid source ID'}, status=status.HTTP_400_BAD_REQUEST)
     
-    if source_id not in SOURCE_CONFIG:
+    if source_id in SOURCE_CONFIG:
+        source_config = SOURCE_CONFIG[source_id]
+    else:
+        source_config = SCHOOL_SOURCES_CONFIG[source_id]
+    if source_id is None:
         return Response({'error': 'Source not found'}, status=status.HTTP_404_NOT_FOUND)
     
     # 获取最新批次时间戳
@@ -57,13 +75,13 @@ def get_ranking_data(request, source_id):
     if not latest_batch:
         return Response({
             'id': source_id,
-            'title': SOURCE_CONFIG[source_id]['title'],
-            'logo': SOURCE_CONFIG[source_id]['logo'],
+            'title': source_config['title'],
+            'logo': source_config['logo'],
             'articles': []
         })
     
     # 查询文章数据
-    limit = SOURCE_CONFIG[source_id]['limit']
+    limit = source_config['limit']
     articles = NewsArticle.objects.filter(
         source=source_id, 
         batch_timestamp=latest_batch
@@ -82,7 +100,7 @@ def get_ranking_data(request, source_id):
     
     return Response({
         'id': source_id,
-        'title': SOURCE_CONFIG[source_id]['title'],
-        'logo': SOURCE_CONFIG[source_id]['logo'],
+        'title': source_config['title'],
+        'logo': source_config['logo'],
         'articles': articles_data
     })
