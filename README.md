@@ -217,7 +217,7 @@ python manage.py createsuperuser
 # 启动服务器（默认端口 8000）
 python manage.py runserver
 
-# 或指定端口
+# 或指定端口（推荐）
 python manage.py runserver 0.0.0.0:8090
 
 # 看到以下输出表示成功：
