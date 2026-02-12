@@ -72,7 +72,16 @@ const updateTimestamp = () => {
 
 const loadSources = async () => {
   try {
-    const { data } = await apiClient.get('/sources/')
+    // 从 URL 获取查询参数
+    const searchParams = new URLSearchParams(window.location.search)
+    const params = {}
+
+    // 将 URL 参数转换为对象
+    searchParams.forEach((value, key) => {
+      params[key] = value
+    })
+
+    const { data } = await apiClient.get('/sources/', { params })
     sources.value = data.sources
     
     // 加载所有榜单数据
