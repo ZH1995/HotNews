@@ -17,6 +17,8 @@ class NewsArticle(models.Model):
         verbose_name = '新闻文章'
         verbose_name_plural = verbose_name
         indexes = [
+            # 优化查询最新批次
+            models.Index(fields=['source', '-batch_timestamp', 'hot_rank'], name='idx_src_batch_rank'),
             models.Index(fields=['source', 'batch_timestamp']),
             models.Index(fields=['source', 'hot_rank']),
         ]

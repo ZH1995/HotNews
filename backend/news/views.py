@@ -6,6 +6,7 @@ from rest_framework import status
 from .models import NewsArticle
 from collections import defaultdict
 from django.db.models import Max
+from django.core.cache import cache
 
 # 数据源配置
 SOURCE_CONFIG = {
@@ -54,23 +55,32 @@ def get_sources(request):
 
 @api_view(['GET'])
 def get_ranking_data(request, source_id):
-    """获取单个榜单数据的API"""
+    """获取单个榜单数据的API（缓存优化版）"""
     try:
         source_id = int(source_id)
     except ValueError:
         return Response({'error': 'Invalid source ID'}, status=status.HTTP_400_BAD_REQUEST)
     
+    # 确定数据源配置
     if source_id in SOURCE_CONFIG:
         source_config = SOURCE_CONFIG[source_id]
-    else:
+    elif source_id in SCHOOL_SOURCES_CONFIG:
         source_config = SCHOOL_SOURCES_CONFIG[source_id]
-    if source_id is None:
+    else:
         return Response({'error': 'Source not found'}, status=status.HTTP_404_NOT_FOUND)
     
-    # 获取最新批次时间戳
-    latest_batch = NewsArticle.objects.filter(source=source_id).aggregate(
-        latest_timestamp=Max('batch_timestamp')
-    )['latest_timestamp']
+    # 缓存键
+    cache_key = f'latest_batch_{source_id}'
+    latest_batch = cache.get(cache_key)
+    
+    # 如果缓存不存在，查询并缓存（60秒）
+    if latest_batch is None:
+        latest_batch = NewsArticle.objects.filter(
+            source=source_id
+        ).aggregate(latest_timestamp=Max('batch_timestamp'))['latest_timestamp']
+        
+        if latest_batch:
+            cache.set(cache_key, latest_batch, timeout=60)  # 缓存60秒
     
     if not latest_batch:
         return Response({
@@ -80,14 +90,12 @@ def get_ranking_data(request, source_id):
             'articles': []
         })
     
-    # 查询文章数据
-    limit = source_config['limit']
+    # 只查询需要的字段（减少数据传输）
     articles = NewsArticle.objects.filter(
         source=source_id, 
         batch_timestamp=latest_batch
-    ).order_by('hot_rank')[:limit]
+    ).only('id', 'title', 'url', 'hot_rank').order_by('hot_rank')[:source_config['limit']]
     
-    # 准备返回数据
     articles_data = [
         {
             'id': article.id,
