@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>热搜榜单</h1>
+    <h1>真不错热榜聚合</h1>
     
     <div class="rankings-container">
       <div 
@@ -36,7 +36,13 @@
     </div>
 
     <footer>
-      <p>&copy; 2026 热搜榜单聚合 | 实时展示各平台热门资讯</p>
+      <p>© 2026 真不错科技. All rights reserved. | 
+      <a
+      href="https://beian.miit.gov.cn/"
+      target="_blank"
+      rel="noopener"
+      class="beian-link"
+    >津ICP备2024023329号-3</a></p>
       <p>数据仅供参考，更新时间：{{ updateTime }}</p>
     </footer>
   </div>
@@ -114,3 +120,13 @@ onMounted(() => {
   loadSources()
 })
 </script>
+
+<style scoped>
+.beian-link {
+  color: inherit;
+  text-decoration: none;
+}
+.beian-link:hover {
+  text-decoration: underline;
+}
+</style>
