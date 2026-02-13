@@ -4,28 +4,31 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import NewsArticle
-from collections import defaultdict
 from django.db.models import Max
 from django.core.cache import cache
 
 # 数据源配置
 SOURCE_CONFIG = {
-    1: {'title': '微博', 'logo': '/images/weibo_logo.png', 'limit': 50},
-    3: {'title': '百度', 'logo': '/images/baidu_logo.png', 'limit': 50},
-    4: {'title': '36氪', 'logo': '/images/kr36_logo.png', 'limit': 50},
-    5: {'title': '抖音', 'logo': '/images/douyin_logo.png', 'limit': 50},
-    6: {'title': '华尔街见闻', 'logo': '/images/wallstreetcn_logo.png', 'limit': 10},
-    7: {'title': '澎湃新闻', 'logo': '/images/thepaper_logo.png', 'limit': 10},
+    1: {'title': '微博', 'logo': '/images/weibo.png', 'limit': 30},
+    3: {'title': '百度', 'logo': '/images/baidu.png', 'limit': 30},
+    #4: {'title': '36氪', 'logo': '/images/kr36.png', 'limit': 30},
+    5: {'title': '抖音', 'logo': '/images/douyin.png', 'limit': 30},
+    6: {'title': '华尔街见闻', 'logo': '/images/wallstreetcn.png', 'limit': 10},
+    7: {'title': '澎湃新闻', 'logo': '/images/thepaper.png', 'limit': 10},
+    8: {'title': '知乎', 'logo': '/images/zhihu.png', 'limit': 30},
+    9: {'title': '今日头条', 'logo': '/images/toutiao.png', 'limit': 30},
+    10: {'title': '哔哩哔哩', 'logo': '/images/bilibili.png', 'limit': 30},
+    11: {'title': '稀土掘金', 'logo': '/images/juejin.png', 'limit': 30},
 }
 
 SCHOOL_SOURCES_CONFIG = {
-    231: {'title': '23级人工1班', 'logo': '/images/wczy_logo.png', 'limit': 100},
-    232: {'title': '23级人工2班', 'logo': '/images/wczy_logo.png', 'limit': 100},
-    241: {'title': '24级人工1班', 'logo': '/images/wczy_logo.png', 'limit': 100},
-    242: {'title': '24级人工2班', 'logo': '/images/wczy_logo.png', 'limit': 100},
-    243: {'title': '24级人工3班', 'logo': '/images/wczy_logo.png', 'limit': 100},
-    244: {'title': '24级物联网1班', 'logo': '/images/wczy_logo.png', 'limit': 100},
-    245: {'title': '24级物联网2班', 'logo': '/images/wczy_logo.png', 'limit': 100},
+    231: {'title': '23级人工1班', 'logo': '/images/wczy.png', 'limit': 100},
+    232: {'title': '23级人工2班', 'logo': '/images/wczy.png', 'limit': 100},
+    241: {'title': '24级人工1班', 'logo': '/images/wczy.png', 'limit': 100},
+    242: {'title': '24级人工2班', 'logo': '/images/wczy.png', 'limit': 100},
+    243: {'title': '24级人工3班', 'logo': '/images/wczy.png', 'limit': 100},
+    244: {'title': '24级物联网1班', 'logo': '/images/wczy.png', 'limit': 100},
+    245: {'title': '24级物联网2班', 'logo': '/images/wczy.png', 'limit': 100},
 }
 
 @api_view(['GET'])
